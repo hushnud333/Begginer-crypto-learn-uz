@@ -1,0 +1,42 @@
+<div style="background: #1a1a1a; color: white; padding: 20px; border-radius: 10px; border: 1px solid #00ff88;">
+    <h3>AI Pattern Analyst</h3>
+    <textarea id="marketData" placeholder="Paste price data or chart notes here..." style="width: 100%; height: 80px; background: #333; color: white; border: none; padding: 10px;"></textarea>
+    
+    <button onclick="askAI()" style="margin-top: 10px; width: 100%; background: #00ff88; padding: 10px; border: none; font-weight: bold; cursor: pointer;">Get Buy/Sell Signal</button>
+    
+    <div id="aiResponse" style="margin-top: 15px; font-style: italic; color: #ccc;"></div>
+</div>
+
+<script>
+async function askAI() {
+    const userInput = document.getElementById('marketData').value;
+    const responseDiv = document.getElementById('aiResponse');
+    responseDiv.innerText = "Analyzing patterns...";
+
+    // NOTE: In a real production app, you would send this to a 'Backend' first.
+    // For a private personal tool, you can prompt for the key:
+    const tempKey = prompt("Please enter your OpenAI Key (not saved):");
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tempKey}`
+        },
+        body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [{
+                role: "system", 
+                content: "You are a professional crypto trader. Use Bulkowski's Chart Encyclopedia logic. Give a 'BUY', 'SELL', or 'HOLD' signal with a confidence percentage."
+            }, {
+                role: "user", 
+                content: userInput
+            }]
+        })
+    });
+
+    const data = await response.json();
+    responseDiv.innerText = data.choices[0].message.content;
+}
+  </script>
+  
